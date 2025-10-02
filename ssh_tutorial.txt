@@ -1,0 +1,16 @@
+#client
+ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ""
+ssh-copy-id -i ~/.ssh/id_ed25519.pub root@192.168.50.1
+ssh-copy-id -i ~/.ssh/id_ed25519.pub root@192.168.60.20
+
+# bottleneck and server
+sudo apt update
+sudo apt install -y openssh-server
+
+# Check ssh in /etc/ssh/sshd_config
+Make sure it is "PermitRootLogin yes" and "PasswordAuthentication yes"
+
+# Restart when it's needed
+sudo systemctl restart ssh
+
+
