@@ -1,0 +1,9 @@
+# Replace directly qdisc
+tc qdisc replace dev <interface> root fq_codel/pfifo/RED
+
+# Return to the edefault qdisc
+tc qdisc del dev <interface> root
+
+# Show current qdisc
+tc qdisc show dev <interface>
+
