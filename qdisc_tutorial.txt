@@ -1,3 +1,6 @@
+# NIC offloading
+sudo ethtool -K eth0 gro off gso off tso off
+
 # Replace directly qdisc
 tc qdisc replace dev <interface> root fq_codel/pfifo/RED
 
