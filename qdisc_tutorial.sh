@@ -5,13 +5,15 @@ sudo ethtool -K enp0s8 gro off gso off tso off
 tc qdisc replace dev <interface> root fq_codel/pfifo/RED
 
 # Return to the edefault qdisc
-tc qdisc del dev <interface> root
+tc qdisc del dev enp0s8 root
 
 # Show current qdisc
-tc qdisc show dev <interface>
+tc qdisc show dev enp0s8
 
 # RED in normal case (bandwidth = 1Gbps)
-tc qdisc replace dev enp0s9 root red limit 8000000 avpkt 1000 bandwidth 1gbit min 2500000 max 7500000 probability 0.02
+tc qdisc replace dev enp0s8 root red limit 11000000 avpkt 1500 bandwidth 1gbit min 2500000 max 7500000 burst 1667 probability 0.02
+
+
 
 
 | Tham số       | Ý nghĩa                                                  | Gợi ý giá trị (1 Gbps) |
@@ -24,16 +26,25 @@ tc qdisc replace dev enp0s9 root red limit 8000000 avpkt 1000 bandwidth 1gbit mi
 | `probability` | xác suất drop tối đa                                     | 0.02 (2%)              |
 
 
-# RED in impairment case (bandwidth = 3Mbps, RTT = 20ms)
-tc qdisc replace dev enp0s9 root red limit 30000 avpkt 1000 bandwidth 3mbit min 7500 max 22500 probability 0.02
 
-
-# Limit bandwidth to 3Mbps
+############## Limit bandwidth to 3Mbps ###############
 # root = tbf (giới hạn băng thông)
-sudo tc qdisc add dev enp0s9 root handle 1: tbf rate 3mbit burst 32kbit latency 50ms
+sudo tc qdisc add dev enp0s8 root handle 1: tbf rate 3mbit burst 32kbit latency 50ms
+
+# Add "DELAY JITTER LOSS"
+sudo tc qdisc add dev enp0s8 parent 1: handle 10: netem delay 20ms 5ms loss 1%
 
 # child = red để quản lý hàng đợi bên dưới tbf
-sudo tc qdisc add dev enp0s9 parent 1:1 handle 10: red limit 30000 avpkt 1000 bandwidth 3mbit min 7500 max 22500 probability 0.02
+sudo tc qdisc add dev enp0s8 parent 10: handle 20: red limit 30000 avpkt 1000 bandwidth 3mbit min 7500 max 22500 probability 0.02
 
 # child = pfifo để quản lý hàng đợi bên dưới tbf
-sudo tc qdisc add dev enp0s9 parent 1:1 handle 10: pfifo
+sudo tc qdisc add dev enp0s8 parent 10:20 handle 20: pfifo
+
+################ No limit bandwidth #####################
+sudo tc qdisc add dev enp0s9 root handle 10: netem delay 20ms 5ms loss 1%
+
+# RED
+sudo tc qdisc add dev enp0s9 parent 10: handle 20: red limit 11000000 avpkt 1500 bandwidth 1gbit min 2500000 max 7500000 burst 1667 probability 0.02
+
+# PFIFO
+sudo tc qdisc add dev enp0s9 parent 10:20 handle 20: pfifo

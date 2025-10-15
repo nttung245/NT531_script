@@ -8,11 +8,13 @@ USER="root"                           # đổi nếu cần
 SERVER_IP="192.168.60.20"
 BOTTLENECK_IP="192.168.50.1"
 RUNS=3
-SCENARIO="bwNORMAL_oneflow_pfifo"
+SCENARIO="bwNORMAL_multiflow_pfifo"
 OUT_BASE="experiments"
 TCP_TIME=15
 UDP_TIME=15
 UDP_BW="0"                            # "0" = as-fast-as-possible; hoặc "100M"
+TCP_FLOWS=5                           # số luồng TCP song song
+UDP_FLOWS=5
 CLIENT_IF="enp0s8"
 SERVER_IF="enp0s8"
 BOTTLENECK_IF="enp0s9"
@@ -77,13 +79,13 @@ for run in $(seq 1 "$RUNS"); do
   sleep 1   # chờ iperf3 server sẵn sàng
 
   echo "$(timestamp) [TEST] Running TCP iperf3 (client -> ${SERVER_IP}) for ${TCP_TIME}s"
-  iperf3 -c ${SERVER_IP} -t ${TCP_TIME} -J > "${OUTDIR}/tcp.json" || echo "$(timestamp) [WARN] iperf3 TCP returned non-zero"
+  iperf3 -c ${SERVER_IP} -P ${TCP_FLOWS} -t ${TCP_TIME} -J > "${OUTDIR}/tcp.json" || echo "$(timestamp) [WARN] iperf3 TCP returned non-zero"
 
   echo "$(timestamp) [TEST] Running UDP iperf3 (client -> ${SERVER_IP}) for ${UDP_TIME}s bw=${UDP_BW}"
   if [ "$UDP_BW" = "0" ]; then
-  iperf3 -c ${SERVER_IP} -u -b 0 -t ${UDP_TIME} -J > "${OUTDIR}/udp.json" || echo "$(timestamp) [WARN] iperf3 UDP returned non-zero"
+  iperf3 -c ${SERVER_IP} -u -b 0 -P ${UDP_FLOWS} -t ${UDP_TIME} -J > "${OUTDIR}/udp.json" || echo "$(timestamp) [WARN] iperf3 UDP returned non-zero"
   else
-  iperf3 -c ${SERVER_IP} -u -b ${UDP_BW} -t ${UDP_TIME} -J > "${OUTDIR}/udp.json" || echo "$(timestamp) [WARN] iperf3 UDP returned non-zero"
+  iperf3 -c ${SERVER_IP} -u -b ${UDP_BW} -P ${UDP_FLOWS} -t ${UDP_TIME} -J > "${OUTDIR}/udp.json" || echo "$(timestamp) [WARN] iperf3 UDP returned non-zero"
   fi
 
   echo "$(timestamp) [CLIENT] Stopping local collectors..."
