@@ -1,3 +1,9 @@
+# Change to BBR
+sudo sysctl -w net.ipv4.tcp_congestion_control=bbr
+
+# Check the current algorithm congestion control
+sysctl net.ipv4.tcp_congestion_control
+
 # NIC offloading
 sudo ethtool -K enp0s8 gro off gso off tso off
 
@@ -29,13 +35,13 @@ tc qdisc replace dev enp0s8 root red limit 11000000 avpkt 1500 bandwidth 1gbit m
 
 ############## Limit bandwidth to 3Mbps ###############
 # root = tbf (giới hạn băng thông)
-sudo tc qdisc add dev enp0s9 root handle 1: tbf rate 3mbit burst 32kbit latency 50ms
+sudo tc qdisc add dev enp0s8 root handle 1: tbf rate 3mbit burst 32kbit latency 50ms
 
 # Add "DELAY JITTER LOSS"
-sudo tc qdisc add dev enp0s9 parent 1: handle 10: netem delay 20ms 5ms loss 1%
+sudo tc qdisc add dev enp0s8 parent 1: handle 10: netem delay 20ms 5ms loss 1%
 
 # child = red để quản lý hàng đợi bên dưới tbf
-sudo tc qdisc add dev enp0s9 parent 10: handle 20: red limit 30000 avpkt 1000 bandwidth 3mbit min 7500 max 22500 probability 0.02
+sudo tc qdisc add dev enp0s8 parent 10: handle 20: red limit 30000 avpkt 1000 bandwidth 3mbit min 7500 max 22500 probability 0.02
 
 # child = pfifo để quản lý hàng đợi bên dưới tbf
 sudo tc qdisc add dev enp0s9 parent 10:20 handle 20: pfifo
