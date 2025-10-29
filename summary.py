@@ -4,7 +4,7 @@ import re
 import json
 import pandas as pd
 
-ROOT_DIR = "experiments"
+ROOT_DIR = "demo"
 
 def get_flow_count(scenario_name: str):
     m = re.search(r"_(\d+)_", scenario_name)

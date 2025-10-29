@@ -162,7 +162,7 @@ def normalize_run_name(run_folder):
 # ============================================================
 # Main processing logic
 # ============================================================
-def process_all_runs(root="experiments", include_udp=PROCESS_UDP_DEFAULT):
+def process_all_runs(root="demo", include_udp=PROCESS_UDP_DEFAULT):
     all_summaries = []
 
     if not os.path.exists(root):
@@ -275,7 +275,7 @@ def process_all_runs(root="experiments", include_udp=PROCESS_UDP_DEFAULT):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Summarize pcaps produced by oneflow_script.sh")
-    parser.add_argument("root", nargs='?', default="experiments", help="root experiments folder")
+    parser.add_argument("root", nargs='?', default="demo", help="root experiments folder (default: demo)")
     parser.add_argument("--include-udp", action="store_true", help="also process client_udp_*.pcap files")
     args = parser.parse_args()
     print(f"[+] Scanning experiments under: {args.root}  (include_udp={args.include_udp})")

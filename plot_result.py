@@ -274,7 +274,7 @@ def plot_bw_summary(bw_csv):
 # Main
 # ============================================================
 if __name__ == "__main__":
-    os.makedirs("experiments", exist_ok=True)
-    plot_pcap_summary("experiments/all_scenarios_pcap.csv")
-    plot_bw_summary("experiments/all_scenarios_summary.csv")
+    os.makedirs("demo", exist_ok=True)
+    plot_pcap_summary("demo/all_scenarios_pcap.csv")
+    plot_bw_summary("demo/all_scenarios_summary.csv")
 
